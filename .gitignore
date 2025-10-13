@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# Docker
+.docker/
+**/docker-data/
+
+# Milvus
+milvus/
+milvus_data/
+logs/
+db/
+wal/
+etcd/
+minio/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
