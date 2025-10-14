@@ -41,6 +41,8 @@ import glob
 import math
 from typing import List, Dict, Tuple
 from tqdm import tqdm
+from pypdf import PdfReader
+import requests # <--- ADD THIS IMPORT
 
 # PDF parsing
 try:
@@ -79,9 +81,17 @@ except Exception:
 DEFAULT_MILVUS_HOST = os.getenv("MILVUS_HOST", "localhost")
 DEFAULT_MILVUS_PORT = os.getenv("MILVUS_PORT", "19530")
 #DEFAULT_EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
-DEFAULT_EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL","sentence-transformers/paraphrase-MiniLM-L3-v2")
+#DEFAULT_EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL","sentence-transformers/paraphrase-MiniLM-L3-v2")
+DEFAULT_EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL","all-MiniLM-L6-v2") # Dimension 384
 
 DEFAULT_DIM = 384  # all-MiniLM-L6-v2 output dim
+
+# New configuration for Hugging Face API
+HF_API_KEY = os.getenv("HF_API_KEY", "none")
+
+# Using a common HuggingFace model endpoint for text embeddings
+HF_API_MODEL_URL = f"https://api-inference.huggingface.co/models/{DEFAULT_EMBEDDING_MODEL}"
+
 
 # --------------------------- Utilities ---------------------------
 
@@ -123,8 +133,8 @@ def create_collection(collection_name: str, dim: int = DEFAULT_DIM, metric: str 
 
 # --------------------------- Text processing ---------------------------
 
-def parse_pdf_to_text(pdf_path: str) -> str:
-    """Use unstructured.partition_pdf to extract text from a PDF file and return as a single string."""
+""" def parse_pdf_to_text(pdf_path: str) -> str:
+    #Use unstructured.partition_pdf to extract text from a PDF file and return as a single string.
     
     #elements = partition_pdf(filename=pdf_path)
 
@@ -143,7 +153,28 @@ def parse_pdf_to_text(pdf_path: str) -> str:
         txt = getattr(el, "text", None)
         if txt:
             texts.append(txt.strip())
-    return "\n\n".join([t for t in texts if t])
+    return "\n\n".join([t for t in texts if t]) """
+
+# --------------------------- Text processing ---------------------------
+
+def parse_pdf_to_text(pdf_path: str) -> str:
+    """
+    Extracts text from a PDF using pypdf.
+    Fast and lightweight (no OCR). Works best for digital PDFs.
+
+    If your PDF is scanned (image-based), this will return little or no text.
+    """
+    text_chunks = []
+    try:
+        reader = PdfReader(pdf_path)
+        for page in reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                text_chunks.append(page_text.strip())
+    except Exception as e:
+        print(f"[WARN] Failed to parse {pdf_path}: {e}")
+        return ""
+    return "\n\n".join(text_chunks)
 
 
 def chunk_text(text: str, chunk_size: int = 500, chunk_overlap: int = 50) -> List[str]:
@@ -162,7 +193,7 @@ def chunk_text(text: str, chunk_size: int = 500, chunk_overlap: int = 50) -> Lis
 
 # --------------------------- Embeddings ---------------------------
 
-class Embedder:
+""" class Embedder:
     def __init__(self, model_name: str = DEFAULT_EMBEDDING_MODEL):
         self.model_name = model_name
         print(f"Loading embedding model: {model_name}")
@@ -174,10 +205,96 @@ class Embedder:
         return self.model.encode(texts, show_progress_bar=False, convert_to_numpy=True).tolist()
 
     # If you prefer OpenAI, replace the implementation of embed_batch with an OpenAI call.
+ """
+
+class Embedder:
+    def __init__(self, model_name: str = DEFAULT_EMBEDDING_MODEL):
+        self.model_name = model_name
+        print(f"Loading embedding model: {model_name}")
+        
+        # --- CRITICAL CHANGE: Use PyTorch to force the loading precision ---
+        import torch 
+
+        # This parameter tells the underlying Hugging Face model to load in lower precision 
+        # (half-precision), which cuts the memory usage by about 50%.
+        # The 'cpu' device ensures it uses RAM and not non-existent VRAM.
+        self.model = SentenceTransformer(
+            model_name,
+            device='cpu'
+            # Set torch_dtype to half-precision (float16). This is the key memory saver.
+            # MiniLM models are often robust to this reduction.
+        )
+        # ----------------------------
+        
+        # update dim automatically
+        self.dim = self.model.get_sentence_embedding_dimension()
+
+
+# --------------------------- Embeddings ---------------------------
+
+class SentenceTransformerEmbedder: # Renaming the original class
+    """Local Embedder using sentence-transformers."""
+    def __init__(self, model_name: str = DEFAULT_EMBEDDING_MODEL):
+        self.model_name = model_name
+        print(f"Loading local embedding model: {model_name}")
+        
+        # --- CRITICAL CHANGE: Use PyTorch to force the loading precision ---
+        import torch 
+
+        self.model = SentenceTransformer(
+            model_name,
+            device='cpu'
+        )
+        self.dim = self.model.get_sentence_embedding_dimension()
+
+    def embed_batch(self, texts: List[str]) -> List[List[float]]:
+        # Use convert_to_numpy=False since the API returns a list/tensor-like object
+        return self.model.encode(texts, show_progress_bar=False, convert_to_numpy=False).tolist()
+
+    
+class HuggingFaceAPIEmbedder:
+    """Remote Embedder using Hugging Face Inference API."""
+    def __init__(self, model_url: str = HF_API_MODEL_URL, api_key: str = HF_API_KEY):
+        if not api_key or api_key == "YOUR_HF_API_KEY_HERE":
+            raise ValueError("HF_API_KEY must be set for HuggingFaceAPIEmbedder.")
+            
+        self.api_url = model_url
+        self.headers = {"Authorization": f"Bearer {api_key}"}
+        
+        # NOTE: You need to know the dimension of the model you are using.
+        # all-MiniLM-L6-v2 is 384. You might need to make an initial API call
+        # with a single dummy text to confirm the dimension if it's dynamic.
+        self.dim = DEFAULT_DIM 
+        print(f"Using Hugging Face API for embeddings at: {self.api_url}")
+
+    def embed_batch(self, texts: List[str]) -> List[List[float]]:
+        """Calls the Hugging Face Inference API to get embeddings."""
+        payload = {"inputs": texts}
+        try:
+            response = requests.post(self.api_url, headers=self.headers, json=payload)
+            response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
+            
+            embeddings = response.json()
+            if isinstance(embeddings, list) and all(isinstance(e, list) for e in embeddings):
+                return embeddings
+            else:
+                # Handle cases where the API might return an error structure
+                print(f"[API ERROR] Unexpected API response format: {embeddings}")
+                return [[]] * len(texts) # Return empty list for safety
+                
+        except requests.exceptions.HTTPError as e:
+            print(f"[API ERROR] HTTP Error: {e}")
+            print(f"Response content: {response.text}")
+            raise
+        except Exception as e:
+            print(f"[API ERROR] An error occurred during API call: {e}")
+            raise
+
+
 
 # --------------------------- Milvus operations ---------------------------
 
-def upsert_chunks_to_milvus(collection: Collection, chunks: List[Tuple[str, str]], embedder: Embedder, batch_size: int = 64):
+def upsert_chunks_to_milvus(collection: Collection, chunks: List[Tuple[str, str]], embedder: Embedder, batch_size: int = 1):
     """chunks: list of tuples (text, source)
     Inserts into Milvus with auto-generated ids.
     """
@@ -247,6 +364,61 @@ def ingest_pdfs(pdf_dir: str, collection_name: str, chunk_size: int = 500, chunk
     print("Ingestion complete.")
 
 
+#-------------------------ingest_txt-----------------------------------------------
+# I will update ingest_text_files to accept a type of embedder
+def ingest_text_files(txt_dir: str, collection_name: str, chunk_size: int = 500, chunk_overlap: int = 50, embedding_model: str = DEFAULT_EMBEDDING_MODEL, use_api_embedder: bool = False):
+    connect_milvus()
+    
+    # --- CRITICAL CHANGE: Choose Embedder ---
+    if use_api_embedder:
+        # Pass the model URL and API key to the API Embedder
+        embedder = HuggingFaceAPIEmbedder(model_url=HF_API_MODEL_URL, api_key=HF_API_KEY)
+    else:
+        # Use the original local Sentence Transformer
+        embedder = SentenceTransformerEmbedder(embedding_model)
+        
+    collection = create_collection(collection_name, dim=embedder.dim)
+    # ... (Rest of the function body remains the same) ...
+    
+    txt_files = glob.glob(os.path.join(txt_dir, "*.txt")) 
+    
+    total_chunks_count = 0
+
+    # Change the tqdm description to reflect file processing
+    for file_path in tqdm(txt_files, desc="Processing and embedding files"):
+        file_name = os.path.basename(file_path)
+        print(f"\nProcessing file: {file_name}")
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                text = f.read()
+            
+            # 1. Chunk the text from the single file
+            chunks = chunk_text(text, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+            
+            if not chunks:
+                print(f"[WARN] File {file_name} resulted in 0 chunks, skipping.")
+                continue
+
+            # 2. Tag chunks with source
+            chunks_with_source = [(c, file_name) for c in chunks]
+            total_chunks_count += len(chunks_with_source)
+
+            # 3. IMMEDIATELY UPSERT the chunks for this file
+            # This is the key change to avoid OOM
+            upsert_chunks_to_milvus(collection, chunks_with_source, embedder, batch_size=1)
+            print(f"Successfully ingested {len(chunks_with_source)} chunks from {file_name}")
+            
+        except Exception as e:
+            print(f"[ERROR] Failed to process {file_name}: {e}")
+            continue
+
+    print(f"\nIngestion complete. Total chunks upserted: {total_chunks_count}")
+
+# ... (Your existing query_collection, CLI functions) ...
+
+
+
 def query_collection(collection_name: str, query: str, top_k: int = 5, embedding_model: str = DEFAULT_EMBEDDING_MODEL):
     connect_milvus()
     embedder = Embedder(embedding_model)
@@ -282,14 +454,32 @@ def make_arg_parser():
 def main():
     #parser = make_arg_parser()
     #args = parser.parse_args()
+    
+    #pdf_dir = "/Users/hema/Desktop/Prototype_1013/raw_data/"
+    
+    pdf_dir = "raw_data/"
+    txt_dir = "processed_txt/"
 
-    pdf_dir = "/Users/hema/Desktop/Prototype_1012/raw_data/"
     collection = "my_rag_collection"
     chunk_size = 500
     chunk_overlap = 50
     EMBEDDING_MODEL = DEFAULT_EMBEDDING_MODEL
 
-    ingest_pdfs(pdf_dir, collection, chunk_size, chunk_overlap, EMBEDDING_MODEL)
+    #ingest_pdfs(pdf_dir, collection, chunk_size, chunk_overlap, EMBEDDING_MODEL)
+   
+    # --- CRITICAL CHANGE: Call with the new flag ---
+    # To use the Hugging Face API for embedding, set use_api_embedder=True
+    # Make sure to set the HF_API_KEY environment variable or replace "YOUR_HF_API_KEY_HERE"
+    ingest_text_files(
+        txt_dir, 
+        collection, 
+        chunk_size, 
+        chunk_overlap, 
+        EMBEDDING_MODEL,
+        use_api_embedder=True # <--- Set this to True to use the API
+    )
+
+
 
     """ if args.cmd == "ingest":
         # ingest_pdfs(args.pdf_dir, args.collection, chunk_size=args.chunk_size, chunk_overlap=args.chunk_overlap, embedding_model=args.embedding_model)

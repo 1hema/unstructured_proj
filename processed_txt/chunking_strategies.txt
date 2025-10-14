@@ -1,0 +1,102 @@
+See discussions, stats, and author profiles for this publication at: https://www.researchgate.net/publication/308158087
+Chunking mechanisms and learning
+Article · January 2012
+CITATIONS
+47
+READS
+20,621
+2 authors, including:
+Fernand Gobet
+London School of Economics and Political Science
+422 PUBLICATIONS   13,650 CITATIONS   
+SEE PROFILE
+All content following this page was uploaded by Fernand Gobet on 14 August 2017.
+The user has requested enhancement of the downloaded file.
+
+CHUNKING MECHANISMS AND LEARNING  
+Fernand Gobet 
+Department of  Psychology, Brunel University 
+Uxbridge 
+United Kingdom 
+fernand.gobet@brunel.ac.uk 
+ 
+Peter C. R. Lane 
+School of  Computer Science, University of  Hertfordshire 
+Hatfield 
+United Kingdom 
+p.c.lane@herts.ac.uk 
+ 
+Synonyms 
+ 
+Definition 
+A chunk is meaningful unit of  information built from smaller pieces of  information, and chunking  is the 
+process of  creating a new chunk. Thus, a chunk can be seen as a collection of  elements that have strong 
+associations with one another, but weak associations with elements belonging to other chunks. Chunks, which 
+can be of  different sizes, are used by memory systems and more generally by the cognitive system. Within 
+this broad definition, two further meanings can be differentiated. First, chunking can be seen as a deliberate, 
+conscious process. Here, we talk about goal-oriented chunking . Second, chunking can be seen as a more 
+automatic and continuous process that occurs during perception. Here, we talk about perceptual chunking . 
+ 
+Theoretical Background 
+Chunking as a mechanism was initially proposed by De Groot (1946/1978) in his study of  chess experts’ << 
+link to Development of  expertise>> perception, memory and problem solving, to explain their ability to 
+recall briefly presented positions with a high level of  precision. It was also a central ingredient of Miller’s 
+(1956) classical article about the limits on human information-processing capacity. Miller proposed that chunk 
+are the correct measure for the information in the human cognitive system, and that 7 ± 2 chunks can be
+
+held in short-term memory. Chase and Simon (1973) proposed a general theory of  processes underpinning 
+chunking. It is interesting to note that the approaches of  De Groot as well as Chase and Simon emphasize 
+the implicit nature of  chunks, that are seen as the product of  automatic learning processing sometimes called 
+perceptual chunking. Miller’s view emphasizes a type of strategic, goal-oriented chunking , where chunking is 
+essentially re-coding of  the information in a more efficient way. For example, the 9-digit binary number 
+101000111 can be re-coded as the 3-digit decimal number 327, making it easier to process and memorize for 
+humans. The presence of  chunks explains how humans, in spite of  strict cognitive limitations in memory 
+capacity, attention, and learning rate, can cope efficiently with the demands of  the environment. Chunking 
+has been established as one of  the key mechanisms of  human cognition, and plays an important role in 
+showing how internal cognitive processes are linked to the external environment. 
+There is considerable empirical evidence supporting the notion of  a chunk, for example in our ability to 
+perceive words, sentences or even paragraphs as single units, bypassing their representation as collections of  
+letters or phonemes; this explains, for example, how skilled readers may be insensitive to word repetition or 
+deletion. Particularly strong evidence is found in those studies which use information about the timing of  
+responses to infer the presence of  chunks. The use of  response times assumes that the output of  elements 
+within a chunk will be faster than the output of  elements across different chunks. This is because the 
+elements within a chunk belong to the same structure, as well as sharing a number of  relations. There is good 
+empirical evidence confirming that subjects’ pauses are shorter within chunks than between chunks. For 
+example, timing information shows that when the alphabet  is recited back, letters are grouped in clusters, and 
+clusters grouped in super-clusters. When trained to learn alphabets using scrambled letter orders, subjects also 
+recall letters in a burst of  activity followed by a pause, and therefore show evidence for clusters. 
+The strongest empirical evidence for chunks is based on their inference from several converging methods. 
+For example, studies on chess have shown that chunks identified by latencies in recall or placement of chess 
+pieces correlate highly with chunks identified by the number of  relations shared between successively placed 
+pieces. By analyzing the patterns picked out by chess players within a position for various natural relations 
+(including proximity, color, and relations of  attack or defense), it is evident that within-chunk relations are 
+much stronger than between-chunk relations. This pattern was found whether the subjects were asked to 
+place pieces on the board from memory (using timings to separate the groups), or to copy a board (using the 
+presence of  glances between the two boards to separate the groups). Further empirical evidence for chunking 
+has been uncovered in a number of  other areas including artificial-grammar learning, problem solving, and 
+animal research. 
+The chunking theory,  developed by Chase and Simon (1973) was an important attempt to formalize the 
+mechanisms linked to chunking. It postulated that attention is serial and short-term memory limited to about 
+seven items (Miller’s magical number). When individuals acquire information about a domain with practice 
+and study, they acquire an increasingly larger number of  chunks, which themselves tend to become larger, up
+
+to a limit of  four or five items. While learning is assumed to be slow (10 seconds per chunk), recognition of  
+the information stored in a chunk occurs in a matter of  hundreds of  milliseconds. Another important 
+assumption is that chunks are linked to possible information. For example, in chess, the domain in which the 
+theory was first applied, a chunk could provide information about potentially useful moves (see Figure 1). 
+Chunks help in a recall task, because groups of  pieces rather than individual pieces can be stored in short-
+term memory. They also help in a problem-solving task, because some of  the chunks, being linked to 
+potentially useful information, provide clues about what kind of  action should be taken. 
+Figure 1. Top panel: examples of  chunks in a chess position. Bottom panel: one of  the chunks elicits a 
+possible move (retreating the white bishop). 
+ 
+There is also evidence that people, in particular experts in a domain, use higher-level representations than 
+chunks. For example, data from chess research indicate that sometimes the entire position, up to 32 pieces, is 
+handled as a single unit by grandmasters. In addition, evidence from expertise research indicates that 
+information can sometimes be encoded in long-term memory faster than the 10 seconds proposed by 
+chunking theory. Together, these results led to a revision of  the chunking theory with the template theory  
+(Gobet & Simon, 1996). The template theory proposes that frequently used chunks become “templates”, a 
+type of  schema 
+. A template consists of  a core , which contains constant information, and slots , where variable 
+information can be stored. The presence of  templates considerably expands experts’ memory capability. 
+The image cannot be displayed. Your computer may not have enough memory to open the image, or the image may have been corrupted. Restart your computer, and then open the file again. If the red x still appears, you may have to delete the image and then insert it again.
