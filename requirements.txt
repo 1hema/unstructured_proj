@@ -1,0 +1,16 @@
+streamlit
+langchain
+langchain-community
+pymilvus
+openai
+pypdf
+tiktoken
+
+## 📦 Installation
+
+### 1️⃣ Install Python packages
+Create a virtual environment and install dependencies:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+

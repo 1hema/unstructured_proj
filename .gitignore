@@ -1,0 +1,96 @@
+# ==============================
+# OS / System files
+# ==============================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ==============================
+# Python
+# ==============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+.env
+.venv
+venv/
+env/
+ENV/
+build/
+develop-eggs/
+dist/
+pip-wheel-metadata/
+*.log
+
+# ==============================
+# Jupyter / Notebooks
+# ==============================
+.ipynb_checkpoints/
+
+# ==============================
+# IDE / Editor
+# ==============================
+.vscode/
+.idea/
+*.code-workspace
+
+# ==============================
+# Streamlit
+# ==============================
+.streamlit/secrets.toml
+.streamlit/config.toml
+.streamlit/cache/
+.streamlit/static/
+
+# ==============================
+# Ollama / Embedding Cache
+# ==============================
+ollama_models/
+ollama_cache/
+
+# ==============================
+# Milvus Lite / Vector Store
+# ==============================
+milvus_local.db/
+milvus.db/
+*.bak
+*.lock
+
+# ==============================
+# PDFs / Uploaded Files
+# ==============================
+data/
+uploads/
+*.pdf
+
+# ==============================
+# Environment / Credentials
+# ==============================
+.env
+.env.local
+.env.development
+.env.production
+*.pem
+*.key
+*.crt
+*.token
+*.secret
+
+# ==============================
+# MacOS / Cache / Misc
+# ==============================
+*.tmp
+*.temp
+*.bak
+*.old
+.cache/
+*.zip
+*.tar
+*.tar.gz
+
